@@ -1,7 +1,5 @@
 FROM golang:1-alpine AS builder
 
-LABEL maintainer="mritd <mritd@linux.com>"
-
 # GOPROXY is disabled by default, use:
 # docker build --build-arg GOPROXY="https://goproxy.io" ...
 # to enable GOPROXY.
@@ -14,14 +12,12 @@ COPY . /go/src/github.com/apernet/hysteria
 WORKDIR /go/src/github.com/apernet/hysteria
 
 RUN set -ex \
-    && apk add git build-base bash \
-    && ./build.sh \
+    && apk add git build-base bash python3 \
+    && python hyperbole.py build -r \
     && mv ./build/hysteria-* /go/bin/hysteria
 
 # multi-stage builds to create the final image
 FROM alpine AS dist
-
-LABEL maintainer="mritd <mritd@linux.com>"
 
 # set up nsswitch.conf for Go's "netgo" implementation
 # - https://github.com/golang/go/blob/go1.9.1/src/net/conf.go#L194-L275
